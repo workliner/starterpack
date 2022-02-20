@@ -14,6 +14,20 @@ class StarterPack(object):
         self._vendor_launchers = {}
         self._load_vendor_launchers()
 
+    def launch(self, name: str, **kwargs) -> None:
+        """Execute a vendor launcher.
+
+        Args:
+            name: name of the vendor.
+            **kwargs: optional arguments the vendor launcher may use.
+        """
+        launcher_cls = self._vendor_launchers.get(name, None)
+        if not launcher_cls:
+            raise AttributeError(f"The launcher for {name} is not loaded.")
+
+        launcher = launcher_cls(**kwargs)
+        launcher.execute()
+
     def get_vendor_launchers(self, only_name: bool = False) -> List[str] or Dict:
         return self._vendor_launchers if not only_name else list(self._vendor_launchers.keys())
 
