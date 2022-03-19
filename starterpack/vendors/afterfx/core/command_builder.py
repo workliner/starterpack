@@ -1,15 +1,20 @@
 import os
-from typing import List
+from typing import List, Dict
 from pathlib import Path
 import logging
+import json
+import shlex
 
 AFTERFX_BIN = "WL_SP_AFTERFX_BIN"
+JS_SCRIPT_OBJECT_NAME = "WL_SP_DATA"
 
 
 class _CommandBuilder(object):
     """Used to build an AfterFX command with some potential arguments."""
 
-    def __init__(self, bin_path: str = None, no_gui: bool = False, script_path: str = None) -> None:
+    def __init__(
+            self, bin_path: str = None, no_gui: bool = False, script_path: str = None, script_args: Dict = None
+    ) -> None:
         super(_CommandBuilder, self).__init__()
 
         # Checking.
@@ -22,6 +27,8 @@ class _CommandBuilder(object):
 
         if no_gui and not script_path:
             raise AttributeError("You cannot run AfterFX in no-gui mode without specifying a script to execute.")
+        if script_args and not script_path:
+            raise AttributeError("You cannot provide script arguments without specifying a script to execute.")
 
         if script_path is not None:
             path = Path(script_path)
@@ -34,6 +41,7 @@ class _CommandBuilder(object):
         self._bin_path = bin_path
         self._no_gui = no_gui
         self._script_path = script_path
+        self._script_args = script_args
 
         logging.info(self._info())
 
@@ -43,6 +51,8 @@ class _CommandBuilder(object):
             msg_info += " The instance will run in no-gui mode."
         if self._script_path:
             msg_info += f" The following script will be executed at startup: {self._script_path}."
+        if self._script_args:
+            msg_info += f" The arguments for the script will be the following ones: {self._script_args}."
 
         return msg_info
 
@@ -62,17 +72,31 @@ class _CommandBuilder(object):
             cmd.append("-noui")
 
         # Workaround to make AfterFX running the specified
-        # script with the good arguments (for later implementation).
+        # script with the good arguments.
         # We send to the command an inline script which will
         # make sure to execute the real script.
         if self._script_path:
-            script_path = self._script_path.replace("\\", "/")
             cmd.append("-s")
-            inline_script = [
-                f"app.exitAfterLaunchAndEval={str(self._no_gui).lower()};",
-                f"$.evalFile('{script_path}');",
-            ]
+
+            inline_script = []
+            if self._script_args:
+                inline_script.extend(
+                    [
+                        f"#include {Path(__file__).parent / 'jsx_utils' / 'json_reader.js'};",
+                        f"var {JS_SCRIPT_OBJECT_NAME} = readJsonString({shlex.quote(json.dumps(self._script_args))});",
+                    ]
+                )
+
+            script_path = self._script_path.replace("\\", "/")
+            inline_script.extend(
+                [
+                    f"app.exitAfterLaunchAndEval={str(self._no_gui).lower()};",
+                    f"$.evalFile('{script_path}');",  # shlex.quote does not work here if there is no spaces to quote.
+                ]
+            )
 
             cmd.append("".join(inline_script))
+
+        logging.debug(f"The generated command is: {cmd}")
 
         return cmd
