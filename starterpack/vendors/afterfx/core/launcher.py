@@ -21,8 +21,14 @@ class Launcher(starterpack.vendors.launcher.Launcher):
         super(Launcher, self).__init__(name="afterfx")
 
         self._cmd_builder = _CommandBuilder(
-            bin_path=bin_path, no_gui=no_gui, script_path=script_path, script_args=script_args
+            bin_path=bin_path or self._get_binary_path(),
+            no_gui=no_gui,
+            script_path=script_path,
+            script_args=script_args,
         )
+
+    def _get_binary_path(self):
+        return self._config.current_soft.get("bin_path", None)
 
     def _cmd_to_exec(self):
         return self._cmd_builder.build()
