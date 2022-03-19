@@ -1,14 +1,18 @@
 import subprocess
 from threading import Thread
 
+from starterpack.vendors.config import _Config
+
 
 class Launcher(object):
     """Abstract class that must be overridden by vendor launchers.
     Those should handle the full process of starting and exiting properly the application."""
 
-    def __init__(self):
+    def __init__(self, name: str, version: str = None):
         super(Launcher, self).__init__()
+
         self._running_thread: Thread = None
+        self._config = _Config(soft_name=name, soft_version=version)
 
     def execute(self):
         cmd = self._cmd_to_exec()

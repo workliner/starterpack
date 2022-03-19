@@ -18,7 +18,7 @@ class Launcher(starterpack.vendors.launcher.Launcher):
     def __init__(
         self, bin_path: str = None, no_gui: bool = False, script_path: str = None, script_args: Dict = None
     ) -> None:
-        super(Launcher, self).__init__()
+        super(Launcher, self).__init__(name="afterfx")
 
         self._cmd_builder = _CommandBuilder(
             bin_path=bin_path, no_gui=no_gui, script_path=script_path, script_args=script_args
