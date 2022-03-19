@@ -1,0 +1,5 @@
+env_vars:
+    OCIO: null  # Path to OCIO config.
+
+software_configs:
+    afterfx: null  # Path to AfterFX YAML config.
