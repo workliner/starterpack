@@ -65,8 +65,8 @@ class _Config(object):
         data_to_keep = {}
 
         # Ensure to keep current env_vars and to override them only if needed.
-        global_env_vars = self._data.get("env_vars", {}).copy()
-        soft_env_vars = soft_data.get("env_vars", {})
+        global_env_vars = (self._data.get("env_vars") or {}).copy()
+        soft_env_vars = soft_data.get("env_vars") or {}
         global_env_vars.update(soft_env_vars)
         data_to_keep["env_vars"] = global_env_vars
 
