@@ -1,11 +1,11 @@
 import os
 from typing import Dict
 
-import starterpack.vendors.abstract
+import starterpack.vendors.launcher
 from starterpack.vendors.afterfx.core.command_builder import _CommandBuilder
 
 
-class Launcher(starterpack.vendors.abstract.Launcher):
+class Launcher(starterpack.vendors.launcher.Launcher):
     """AfterFX launcher.
 
     Args:

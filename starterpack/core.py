@@ -2,7 +2,7 @@ import importlib
 from typing import List, Dict
 
 import starterpack
-import starterpack.vendors.abstract
+import starterpack.vendors.launcher
 
 
 class StarterPack(object):
@@ -47,7 +47,7 @@ class StarterPack(object):
                 continue
 
             launcher_cls = vendor_core_pkg.register_launcher()
-            if not issubclass(launcher_cls, starterpack.vendors.abstract.Launcher):
+            if not issubclass(launcher_cls, starterpack.vendors.launcher.Launcher):
                 raise RuntimeError(f"The loaded class {launcher_cls} does not inherit the abstract Launcher class.")
 
             self._vendor_launchers[vendor] = launcher_cls
